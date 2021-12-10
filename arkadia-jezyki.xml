@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE MudletPackage>
+<MudletPackage version="1.001">
+	<AliasPackage>
+		<Alias isActive="yes" isFolder="no">
+            <name>jezyki maksymalne</name>
+			<script>alias_func_skrypty_misc_jezyki_maksymalne()</script>
+			<command></command>
+			<packageName></packageName>
+			<regex>^jezyki maksymalne$</regex>
+		</Alias>
+		<Alias isActive="yes" isFolder="no">
+			<name>/jezyki</name>
+			<script>alias_func_jezyk_command()</script>
+			<regex>^/jezyk(?(?= ) (.+)|)$</regex>
+		</Alias>
+
+	</AliasPackage>
+</MudletPackage>
