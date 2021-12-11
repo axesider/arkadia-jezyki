@@ -20,7 +20,7 @@ local Jezyk2Jezyk = {
     ["skelliganski"] = 15,
     ["starsza mowa"] = 16,
     ["tar-eltharin"] = 17,
-    ["tileanski"] = 18,
+    ["tileanski"] = "tileansku",
     ["zerrikanski"] = "zerrikansku",
     ["potoczna"] = 20,
     ["ghassally"] = 21
@@ -41,6 +41,7 @@ local Jezyk2nazwa = {
     ["norskim"] = "norski",
     ["Reikspielu"] = "reikspiel",
     ["skelligansku"] = "skelliganski",
+    ["tileansku"] = "tileanski",
         ["starszej mowie"] = "starsza mowa",
         ["Tar-Eltharin"] = "tar-eltharin",
     ["zerrikansku"] = "zerrikanski",   
@@ -251,6 +252,13 @@ function Jezyki:Init()
     
 
     local r = "^Raczej niczego sie od (.+) nie nauczysz\\.$"
+    
+    local r = db:fetch_sql(Jezyki.db.jezyki_max, "select count(*) as poziom from jezyki_max")
+    if r == nil or table.size(r) == 0 then
+        cecho("Wykonaj komende:")
+        cechoLink("<light_slate_blue>jezyki maksymalne<reset>", [[send("jezyki maksymalne")]], "jezyki maksymalne", true)
+        cecho("\n")
+    end
 end
 
 function Jezyki:command(command)
