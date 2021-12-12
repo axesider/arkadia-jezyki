@@ -2,30 +2,6 @@ Jezyki = Jezyki or {
     tryb = 0
 }
 
-local Jezyk2Jezyk = {    
-    ["bretonski"] = 1,
-    ["drukh-eltharin"] = "Drukh-Eltharin",
-    ["estalijski"] = 3,
-    ["fan-eltharin"] = 4,
-    ["gnomi"] = 5,
-    ["grumbarth"] = 6,
-    ["halflinski"] = 7,
-    ["khazalid"] = 8,
-    ["kislevicki"] = "kislevicku",
-    ["krasnoludzki"] = "Krasnoludow Mahakamskich",
-    ["mroczna mowa"] = 11,
-    ["nilfgaardzki"] = 12,
-    ["norski"] = "norskim",
-    ["reikspiel"] = "Reikspielu",
-    ["skelliganski"] = 15,
-    ["starsza mowa"] = 16,
-    ["tar-eltharin"] = 17,
-    ["tileanski"] = "tileansku",
-    ["zerrikanski"] = "zerrikansku",
-    ["potoczna"] = 20,
-    ["ghassally"] = 21
-}
-
 local Jezyk2nazwa = {
     ["bretonsku"] = "bretonski",
     ["Drukh-Eltharin"] = "drukh-eltharin",
@@ -102,7 +78,7 @@ function Jezyki:enableTrigger()
 end
 
 function Jezyki:disableTrigger()
-    if self.jezyki_trigger then killTrigger(self.jezyki_trigger) end
+    if self.jezyki_trigger then killTrigger(self.jezyki_trigger) self.jezyki_trigger = nil end
     self.tryb = 0
 end
 
