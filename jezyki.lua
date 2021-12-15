@@ -71,10 +71,9 @@ function alias_func_jezyk_command()
 end
 
 function Jezyki:enableTrigger()
-    local regexp = "^(\\w+(?>[ -]\\w+)?):\\s+(.+)$"
-    if self.jezyki_trigger then killTrigger(self.jezyki_trigger) end
+    local regexp = "^([a-z]\\w+(?>[ -]\\w+)?):\\s+(.+)$"
+    if self.jezyki_trigger then killTrigger(self.jezyki_trigger) self.jezyki_trigger = nil end
     self.jezyki_trigger = tempRegexTrigger(regexp, function() self:parse() end)
-    
 end
 
 function Jezyki:disableTrigger()
