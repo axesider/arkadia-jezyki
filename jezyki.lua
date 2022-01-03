@@ -6,7 +6,7 @@ local Jezyk2nazwa = {
     ["bretonsku"] = "bretonski",
     ["Drukh-Eltharin"] = "drukh-eltharin",
         ["estalijsku"] = "estalijski",
-        ["Fan-Eltharin"] = "fan-eltharin",
+    ["Fan-Eltharin"] = "fan-eltharin",
     ["gnomiemu"] = "gnomi",
     ["Grumbarth"] = "grumbarth",
     ["halflinsku"] = "halflinski",
@@ -29,6 +29,7 @@ misc["lang_desc"] = {["znikoma"] = 1, ["niewielka"] = 2, ["czesciowa"] = 3, ["ni
 Jezyki.db = db:create("nauka", {
     nauka = {
       jezyk = "",
+      character = "",
       nauczyciel = "",
       postepy = "",
       datetime = "",
@@ -38,12 +39,14 @@ Jezyki.db = db:create("nauka", {
     jezyki = {
         nazwa = "",
         poziom = "",
+        character = "",
         datetime = "",
         changed = db:Timestamp("CURRENT_TIMESTAMP"),
     },
     jezyki_max = {
         nazwa = "",
         poziom = "",
+        character = "",
         _index = { "nazwa" },
         _unique = { "nazwa" },
         _violations = "REPLACE"
@@ -120,7 +123,7 @@ function Jezyki:get_jezyk_max(nazwa)
 end
 
 function Jezyki:insert_jezyk_max(nazwa, poziom)
-    db:add(self.db.jezyki_max, { nazwa = nazwa, poziom = poziom })
+    db:add(self.db.jezyki_max, { nazwa = nazwa, poziom = poziom, character = scripts.character_name })
     --local q = "select poziom from jezyki_max where nazwa='"..nazwa
     --local r = db:fetch_sql(self.db.jezyki_max, q)
     --if table.size(r) == 0 then
@@ -136,12 +139,12 @@ function Jezyki:insert_jezyk(nazwa, poziom)
     local q = "select * from jezyki where nazwa='"..nazwa.."' and poziom='"..poziom.."' "
     local r = db:fetch_sql(self.db.jezyki, q)
     if r == nil or table.size(r) == 0 then
-        db:add(self.db.jezyki, { nazwa = nazwa, poziom = poziom })
+        db:add(self.db.jezyki, { nazwa = nazwa, poziom = poziom, character = scripts.character_name })
     end
 end
 
 function Jezyki:Flush()
-    db:add(self.db.nauka, { jezyk = self.temp_jezyk, nauczyciel = self.temp_nauczyciel, postepy= self.temp_postepy})
+    db:add(self.db.nauka, { jezyk = self.temp_jezyk, nauczyciel = self.temp_nauczyciel, postepy= self.temp_postepy, character = scripts.character_name})
     echo("{"..self.temp_jezyk .."|".. self.temp_nauczyciel .."|".. self.temp_postepy.."}\n")
 end
 

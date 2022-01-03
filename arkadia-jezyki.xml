@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE MudletPackage>
 <MudletPackage version="1.001">
+	<TriggerPackage />
+	<TimerPackage />
 	<AliasPackage>
 		<Alias isActive="yes" isFolder="no">
-            <name>jezyki maksymalne</name>
+			<name>jezyki maksymalne</name>
 			<script>alias_func_skrypty_misc_jezyki_maksymalne()</script>
 			<command></command>
 			<packageName></packageName>
@@ -12,8 +14,15 @@
 		<Alias isActive="yes" isFolder="no">
 			<name>/jezyki</name>
 			<script>alias_func_jezyk_command()</script>
+			<command></command>
+			<packageName></packageName>
 			<regex>^/jezyk(?(?= ) (.+)|)$</regex>
 		</Alias>
-
 	</AliasPackage>
+	<ActionPackage />
+	<ScriptPackage />
+	<KeyPackage />
+	<HelpPackage>
+		<helpURL></helpURL>
+	</HelpPackage>
 </MudletPackage>
