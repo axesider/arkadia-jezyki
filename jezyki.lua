@@ -158,6 +158,7 @@ function Jezyki:chcecieuczyc()
         if ateam.objs[v]["desc"] == name or ateam.objs[v]["desc"] == lowered_name and not ateam.objs[v].enemy and not table.index_of(scripts.people.enemy_people)then
             local command = "jucz sie jezyka od ob_".. v
             if scripts.utils.functional_key ~= command then
+                raiseEvent("playBeep")
                 scripts.utils.bind_functional(command, false)
             end
             break
