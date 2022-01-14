@@ -92,7 +92,7 @@ function Jezyki:parse()
         local lv_max = self:get_jezyk_max(nazwa)
         
         local sub =""
-        local r = db:fetch_sql(self.db.nauka, "select f.nauczyciel, f.jezyk, f.postepy, strftime('%Y-%m-%d %H:%M',f.changed, 'localtime') as datetime from nauka as f where f.changed > (select MAX(changed) as max_date FROM jezyki where nazwa = f.jezyk ) and f.jezyk = '"..nazwa.."'")
+        local r = db:fetch_sql(self.db.nauka, "select f.nauczyciel, f.jezyk, f.postepy, strftime('%Y-%m-%d %H:%M',f.changed, 'localtime') as datetime from nauka as f where f.changed > (select MAX(changed) as max_date FROM jezyki where nazwa = f.jezyk ) and f.jezyk = '"..nazwa.."' and f.character = '".. scripts.character_name .."'")
         for key, val in pairs(r) do
                 if val["postepy"] == "minimalne" then sub = sub .."1"
             elseif val["postepy"] == "nieznaczne" then sub = sub .."2"
@@ -113,7 +113,7 @@ end
 
 -- db:fetch_sql(Jezyki.db.jezyki_max, "select * from jezyki_max")
 function Jezyki:get_jezyk_max(nazwa)
-    local q = "select poziom from jezyki_max where nazwa='"..nazwa.."'"
+    local q = "select poziom from jezyki_max where nazwa='"..nazwa.."' and character = '".. scripts.character_name .."'"
     local r = db:fetch_sql(self.db.jezyki_max, q)
     if table.size(r) > 0 then
         return misc["lang_desc"][r[1]['poziom']]
@@ -136,7 +136,7 @@ end
 
 -- db:add(Jezyki.db.nauka, { jezyk = "krasnoludzki", nauczyciel = "Vorid", postepy= "minimalne", changed=db:Timestamp(os.time({year=2021, month=11, day=25, hour=16, minute=50}))})
 function Jezyki:insert_jezyk(nazwa, poziom)
-    local q = "select * from jezyki where nazwa='"..nazwa.."' and poziom='"..poziom.."' "
+    local q = "select * from jezyki where nazwa='"..nazwa.."' and poziom='"..poziom.."' and character = '".. scripts.character_name .."'"
     local r = db:fetch_sql(self.db.jezyki, q)
     if r == nil or table.size(r) == 0 then
         db:add(self.db.jezyki, { nazwa = nazwa, poziom = poziom, character = scripts.character_name })
@@ -232,7 +232,7 @@ function Jezyki:Init()
 
     local r = "^Raczej niczego sie od (.+) nie nauczysz\\.$"
     
-    local r = db:fetch_sql(Jezyki.db.jezyki_max, "select count(*) as poziom from jezyki_max")
+    local r = db:fetch_sql(Jezyki.db.jezyki_max, "select count(*) as poziom from jezyki_max where character = '".. scripts.character_name .."'")
     if r == nil or table.size(r) == 0 then
         cecho("Wykonaj komende:")
         cechoLink("<light_slate_blue>jezyki maksymalne<reset>", [[send("jezyki maksymalne")]], "jezyki maksymalne", true)
