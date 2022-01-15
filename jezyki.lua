@@ -229,21 +229,14 @@ function Jezyki:Init()
     if self.postepywnauce_trigger then killTrigger(self.postepywnauce_trigger) end
     self.postepywnauce_trigger = tempRegexTrigger(regexp3, function() self:postepywnauce() end)
     
-
     local r = "^Raczej niczego sie od (.+) nie nauczysz\\.$"
-    
-    local r = db:fetch_sql(Jezyki.db.jezyki_max, "select count(*) as poziom from jezyki_max where character = '".. scripts.character_name .."'")
-    if r == nil or table.size(r) == 0 then
-        cecho("Wykonaj komende:")
-        cechoLink("<light_slate_blue>jezyki maksymalne<reset>", [[send("jezyki maksymalne")]], "jezyki maksymalne", true)
-        cecho("\n")
-    end
 end
 
 function Jezyki:command(command)
     local cmd = {
         ["raport1"]       = {opis = "raport uczenia sie", fun = function() Jezyki:print() end},
         ["raport2"]       = {opis = "raport postepow w nauce", fun = function() Jezyki:print2() end},
+        ["maksymalne"]    = {opis = "jezyki maksymalne", fun = function() send("jezyki maksymalne") end},
     }
     
     if cmd[command] then
