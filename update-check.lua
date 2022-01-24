@@ -1,11 +1,19 @@
 Jezyki.updateCheck = Jezyki.updateCheck or {
-    file = getMudletHomeDir() .. "/plugins/arkadia-jezyki/commits",
-    url = "https://api.github.com/repos/axesider/arkadia-jezyki/commits",
+    plugin_name = "arkadia-jezyki",
+    repo = "axesider",
     storeKey = "Jezyki"
 }
 
+function Jezyki.updateCheck:getFile()
+    return getMudletHomeDir() .. "/plugins/" .. self.plugin_name .. "/commits"
+end
+
+function Jezyki.updateCheck:getURL()
+    return "https://api.github.com/repos/" .. self.repo .. "/" .. self.plugin_name .. "/commits"
+end
+
 function Jezyki.updateCheck:checkNewVersion()
-    downloadFile(self.file, self.url)
+    downloadFile(self.getFile(), self.getURL())
     registerAnonymousEventHandler("sysDownloadDone", function(_, file)
         self:handle(file)
     end, true)
@@ -19,15 +27,15 @@ function Jezyki.updateCheck:handle(fileName)
 
     local JezykiState = scripts.state_store:get(self.storeKey) or {}
 
-    local file, s, contents = io.open(self.file)
+    local file, s, contents = io.open(self.getFile())
     if file then
         contents = yajl.to_value(file:read("*a"))
         io.close(file)
-        os.remove(self.file)
+        os.remove(self.getFile())
         local sha = contents[1].sha
         if JezykiState.sha ~= nil and sha ~= JezykiState.sha then
             echo("\n")
-            cecho("<CadetBlue>(skrypty)<tomato>: Plugin arkadia-jezyki posiad nowa aktualizacje. Kliknij ")
+            cecho("<CadetBlue>(skrypty)<tomato>: Plugin "..self.plugin_name .." posiada nowa aktualizacje. Kliknij ")
             cechoLink("<green>tutaj", [[Jezyki.updateCheck:update()]], "Aktualizuj", true)
             cecho(" <tomato>aby pobrac")
             echo("\n")
@@ -38,7 +46,7 @@ function Jezyki.updateCheck:handle(fileName)
 end
 
 function Jezyki.updateCheck:update()
-    scripts.plugins_installer:install_from_url("https://codeload.github.com/axesider/arkadia-jezyki/zip/master")
+    scripts.plugins_installer:install_from_url("https://codeload.github.com/" .. self.repo .. "/" .. self.plugin_name .. "/zip/master")
 end
 
 Jezyki.updateCheck.coroutine = coroutine.create(function()

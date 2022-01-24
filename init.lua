@@ -1,3 +1,4 @@
 return {
-  "jezyki"
+  "jezyki",
+  "update-check"
 }
