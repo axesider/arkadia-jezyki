@@ -230,6 +230,8 @@ function Jezyki:Init()
     self.postepywnauce_trigger = tempRegexTrigger(regexp3, function() self:postepywnauce() end)
     
     local r = "^Raczej niczego sie od (.+) nie nauczysz\\.$"
+    
+    scripts.plugins_updateCheck:checkNewVersion("arkadia-jezyki", "axesider")
 end
 
 function Jezyki:command(command)
