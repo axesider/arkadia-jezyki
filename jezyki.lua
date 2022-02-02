@@ -231,7 +231,7 @@ function Jezyki:Init()
     
     local r = "^Raczej niczego sie od (.+) nie nauczysz\\.$"
     
-    scripts.plugins_updateCheck:checkNewVersion("arkadia-jezyki", "axesider")
+    scripts.plugins_update_check:github_check_version("arkadia-jezyki", "axesider")
 end
 
 function Jezyki:command(command)
