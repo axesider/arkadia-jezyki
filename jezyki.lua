@@ -5,7 +5,7 @@ Jezyki = Jezyki or {
 local Jezyk2nazwa = {
     ["bretonsku"] = "bretonski",
     ["Drukh-Eltharin"] = "drukh-eltharin",
-        ["estalijsku"] = "estalijski",
+    ["estalijsku"] = "estalijski",
     ["Fan-Eltharin"] = "fan-eltharin",
     ["gnomiemu"] = "gnomi",
     ["Grumbarth"] = "grumbarth",
@@ -18,7 +18,7 @@ local Jezyk2nazwa = {
     ["Reikspielu"] = "reikspiel",
     ["skelligansku"] = "skelliganski",
     ["tileansku"] = "tileanski",
-        ["starszej mowie"] = "starsza mowa",
+    ["Starszej Mowie"] = "starsza mowa",
         ["Tar-Eltharin"] = "tar-eltharin",
     ["zerrikansku"] = "zerrikanski",   
         ["ghassally"] = "ghassally",
@@ -212,7 +212,7 @@ function Jezyki:print()
   local q = "select f.nauczyciel, f.jezyk, f.postepy, strftime('%Y-%m-%d %H:%M',f.changed, 'localtime') as datetime from nauka as f order by datetime"
   local r = db:fetch_sql(Jezyki.db.nauka, q)
   for key, val in pairs(r) do
-    cecho(val["datetime"].." ".. val["nauczyciel"]..string.rep(" ", 12 - string.len(val["nauczyciel"])).."<green>"..val["jezyk"].."<reset>"..string.rep(" ", 13 - string.len(val["jezyk"]))..val["postepy"].."\n")
+    cecho(val["datetime"].." ".. val["nauczyciel"]..string.rep(" ", 12 - string.len(val["nauczyciel"])).."<green>"..val["jezyk"].."<reset>"..string.rep(" ", 15 - string.len(val["jezyk"]))..val["postepy"].."\n")
   end 
 end
 
@@ -221,7 +221,7 @@ function Jezyki:Init()
     if self.chcecieuczyc_trigger then killTrigger(self.chcecieuczyc_trigger) end
     self.chcecieuczyc_trigger = tempRegexTrigger(regexp, function() self:chcecieuczyc() end)
     
-    local regexp2 = "^(.+) uczy cie mowic (?>w(?> jezyku)?|po) (.+)\\.$"
+    local regexp2 = "^\[?(.+?)\]?  uczy cie mowic (?>w(?> jezyku)?|po) (.+)\\.$"
     if self.uczyciemowic_trigger then killTrigger(self.uczyciemowic_trigger) end
     self.uczyciemowic_trigger = tempRegexTrigger(regexp2, function() self:uczyciemowic() end)
 
