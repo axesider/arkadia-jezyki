@@ -96,7 +96,8 @@ function Jezyki:parse()
         for key, val in pairs(r) do
                 if val["postepy"] == "minimalne" then sub = sub .."1"
             elseif val["postepy"] == "nieznaczne" then sub = sub .."2"
-            else sub = sub .."3" end
+            elseif val["postepy"] == "bardzo male" then sub = sub .."3"
+            else sub = sub .."4" end
         end
         
         selectString(nazwa, 1)
@@ -146,12 +147,13 @@ end
 function Jezyki:Flush()
     db:add(self.db.nauka, { jezyk = self.temp_jezyk, nauczyciel = self.temp_nauczyciel, postepy= self.temp_postepy, character = scripts.character_name})
     echo("{"..self.temp_jezyk .."|".. self.temp_nauczyciel .."|".. self.temp_postepy.."}\n")
+    self.temp_jezyk = nil
+    self.temp_nauczyciel = nil
 end
 
 function Jezyki:chcecieuczyc()
     local name = matches[2]
     local lowered_name = string.lower(name)
-    local obj_to_join = nil
 
     if not Jezyk2nazwa[matches[3]] then
         echo("Co to '"..matches[3].."'\n")
@@ -221,7 +223,7 @@ function Jezyki:Init()
     if self.chcecieuczyc_trigger then killTrigger(self.chcecieuczyc_trigger) end
     self.chcecieuczyc_trigger = tempRegexTrigger(regexp, function() self:chcecieuczyc() end)
     
-    local regexp2 = "^\[?(.+?)\]?  uczy cie mowic (?>w(?> jezyku)?|po) (.+)\\.$"
+    local regexp2 = "^\\[?(.+?)\\]? uczy cie mowic (?>w(?> jezyku)?|po) (.+)\\.$"
     if self.uczyciemowic_trigger then killTrigger(self.uczyciemowic_trigger) end
     self.uczyciemowic_trigger = tempRegexTrigger(regexp2, function() self:uczyciemowic() end)
 
