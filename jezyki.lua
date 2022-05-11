@@ -46,6 +46,7 @@ Jezyki.db = db:create("nauka", {
     jezyki_max = {
         nazwa = "",
         poziom = "",
+        is_max = 0,
         character = "",
         _index = { "nazwa" },
         _unique = { "nazwa" },
@@ -90,22 +91,25 @@ function Jezyki:parse()
     if self.tryb == 1 then
         local lv = misc.lang_desc[poziom]
         local lv_max = self:get_jezyk_max(nazwa)
-        
-        local sub =""
-        local r = db:fetch_sql(self.db.nauka, "select f.nauczyciel, f.jezyk, f.postepy, strftime('%Y-%m-%d %H:%M',f.changed, 'localtime') as datetime from nauka as f where f.changed > (select MAX(changed) as max_date FROM jezyki where nazwa = f.jezyk ) and f.jezyk = '"..nazwa.."' and f.character = '".. scripts.character_name .."'")
-        for key, val in pairs(r) do
-                if val["postepy"] == "minimalne" then sub = sub .."1"
-            elseif val["postepy"] == "nieznaczne" then sub = sub .."2"
-            elseif val["postepy"] == "bardzo male" then sub = sub .."3"
-            else sub = sub .."4" end
-        end
-        
+               
         selectString(nazwa, 1)
         setLink(function() send("justaw "..nazwa)end, "zmien jezyk na "..nazwa)
         
-        local add_text = string.rep(" ", 13 - string.len(poziom)) .. " [<green>" ..string.rep("=",lv).."<red>" .. string.rep("-",lv_max-lv) .."<reset>".. string.rep(" ",10-lv_max) .. "]" .. sub
+        local add_text = string.rep(" ", 13 - string.len(poziom)) .. " [<green>" ..string.rep("=",lv).."<red>" .. string.rep("-",lv_max-lv) .."<reset>".. string.rep(" ",10-lv_max) .. "]"
         --local add_text = string.rep(" ", 13 - string.len(poziom)) .. "<DarkSlateBlue>" ..string.rep("#",lv).."<light_pink>" .. string.rep("-",lv_max-lv) .."<reset>"
         cecho(add_text)
+
+        local r = db:fetch_sql(self.db.nauka, "select f.nauczyciel, f.jezyk, f.postepy, strftime('%Y-%m-%d %H:%M',f.changed, 'localtime') as datetime from nauka as f where f.changed > (select MAX(changed) as max_date FROM jezyki where nazwa = f.jezyk ) and f.jezyk = '"..nazwa.."' and f.character = '".. scripts.character_name .."'")
+        for key, val in pairs(r) do
+            local postepy = "4"
+                if val["postepy"] == "minimalne" then postepy = "1"
+            elseif val["postepy"] == "nieznaczne" then postepy = "2"
+            elseif val["postepy"] == "bardzo male" then postepy = "3"
+            end
+            cechoLink(postepy, function() end, val["nauczyciel"], true)
+            
+        end
+
         self:insert_jezyk(nazwa, poziom)
     elseif self.tryb == 2 then
         self:insert_jezyk_max(nazwa, poziom)
@@ -146,7 +150,6 @@ end
 
 function Jezyki:Flush()
     db:add(self.db.nauka, { jezyk = self.temp_jezyk, nauczyciel = self.temp_nauczyciel, postepy= self.temp_postepy, character = scripts.character_name})
-    echo("{"..self.temp_jezyk .."|".. self.temp_nauczyciel .."|".. self.temp_postepy.."}\n")
     self.temp_jezyk = nil
     self.temp_nauczyciel = nil
 end
@@ -202,6 +205,17 @@ function Jezyki:postepywnauce()
     self:Flush()
 end
 
+function Jezyki:maxnauki()
+    if self.temp_jezyk and self.temp_nauczyciel then
+        local nauczyciel_dop = matches[2]
+        --if self.temp_nauczyciel ==  then
+            local bob = db:fetch(Jezyki.db.jezyki_max, db:eq(Jezyki.db.jezyki_max.nazwa, self.temp_jezyk), db:eq(Jezyki.db.jezyki_max.character, scripts.character_name))[1]
+            bob.is_max = 1
+            db:update(Jezyki.db.jezyki_max, bob)
+        --end
+    end
+end    
+
 function Jezyki:print2()
   local q = "select nazwa, poziom, strftime('%Y-%m-%d %H:%M',changed, 'localtime') as datetime from jezyki order by nazwa,datetime"
   local r = db:fetch_sql(Jezyki.db.jezyki, q)
@@ -231,7 +245,10 @@ function Jezyki:Init()
     if self.postepywnauce_trigger then killTrigger(self.postepywnauce_trigger) end
     self.postepywnauce_trigger = tempRegexTrigger(regexp3, function() self:postepywnauce() end)
     
-    local r = "^Raczej niczego sie od (.+) nie nauczysz\\.$"
+    local regexp4 = "^Raczej niczego sie od (.+?) nie nauczysz\\.$"
+
+    if self.maxnauki_trigger then killTrigger(self.maxnauki_trigger) end
+    self.maxnauki_trigger = tempRegexTrigger(regexp4, function() self:maxnauki() end)
     
     scripts.plugins_update_check:github_check_version("arkadia-jezyki", "axesider")
 end
