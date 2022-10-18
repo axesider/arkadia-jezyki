@@ -24,6 +24,25 @@ local Jezyk2nazwa = {
         ["ghassally"] = "ghassally",
 }
 
+local JezykPostepy = {
+    ["minimalne"] = "1",
+    ["nieznaczne"] = "2",
+    ["bardzo male"] = "3",
+    ["male"] = "4",
+    ["nieduze"] = "5",
+    ["zadowalajace"] = "6",
+    ["spore"] = "7",
+    ["dosc duze"] = "8",
+    ["znaczne"] = "9",
+    ["duze"] = "A",
+    ["bardzo duze"] = "B",
+    ["ogromne"] = "C",
+    ["imponujace"] = "D",
+    ["wspaniale"] = "E",
+    ["gigantyczne"] = "F",
+    ["niebotyczne"] = "G",
+ }
+
 misc["lang_desc"] = {["znikoma"] = 1, ["niewielka"] = 2, ["czesciowa"] = 3, ["niezla"] = 4, ["dosc dobra"] = 5, ["dobra"] = 6, ["bardzo dobra"] = 7, ["doskonala"] = 8, ["prawie pelna"] = 9, ["pelna"] = 10}
 
 Jezyki.db = db:create("nauka", {
@@ -89,25 +108,53 @@ function Jezyki:parse()
     local nazwa = matches[2]
     local poziom = matches[3]
     if self.tryb == 1 then
+
+        local h = {}
+        for key, val in pairs(misc["lang_desc"]) do
+            local q = "select f.nauczyciel, f.jezyk, f.postepy, strftime('%Y-%m-%d %H:%M',f.changed, 'localtime') as datetime from nauka as f where "..
+                    "f.changed between (select ifnull(max(changed),0) from jezyki where nazwa=f.jezyk and changed<(select changed from jezyki where nazwa=f.jezyk and poziom = '"..key.."')) "..
+                                 " and (select changed from jezyki where nazwa=f.jezyk and poziom = '"..key.."')"..
+                    "and f.jezyk = '"..nazwa.."'"
+            h[key] = {}
+            local r = db:fetch_sql(self.db.nauka, q)
+            for k, v in pairs(r) do
+                local p = v['postepy']
+                h[key][p] = h[key][p] and h[key][p]+1 or 1
+            end
+        end
         local lv = misc.lang_desc[poziom]
         local lv_max = self:get_jezyk_max(nazwa)
                
         selectString(nazwa, 1)
         setLink(function() send("justaw "..nazwa)end, "zmien jezyk na "..nazwa)
         
-        local add_text = string.rep(" ", 13 - string.len(poziom)) .. " [<green>" ..string.rep("=",lv).."<red>" .. string.rep("-",lv_max-lv) .."<reset>".. string.rep(" ",10-lv_max) .. "]"
+        cecho(string.rep(" ", 13 - string.len(poziom)) .. " [")
+        for i = 1, 10 do
+            for k,v in pairs(misc["lang_desc"]) do
+                if v == i then
+                    local msg = "<reset> "
+                    if i <= lv then msg = "<green>="
+                    elseif i<=lv_max then msg = "<red>-" end
+                    if h[k] and h[k] ~= {} then
+                        local hint = k.." "
+                        for n,m in pairs(h[k]) do hint = hint .. n..":"..m.." " end
+                        cechoLink(msg, function() end, hint, true)
+                    else
+                        cecho(msg)
+                    end
+                    break
+                end
+            end
+        end
+        cecho("<reset>]")
+        --"<green>" ..string.rep("=",lv).."<red>" .. string.rep("-",lv_max-lv) .."<reset>".. string.rep(" ",10-lv_max) .. "]"
         --local add_text = string.rep(" ", 13 - string.len(poziom)) .. "<DarkSlateBlue>" ..string.rep("#",lv).."<light_pink>" .. string.rep("-",lv_max-lv) .."<reset>"
-        cecho(add_text)
+        --cecho(add_text)
 
         local r = db:fetch_sql(self.db.nauka, "select f.nauczyciel, f.jezyk, f.postepy, strftime('%Y-%m-%d %H:%M',f.changed, 'localtime') as datetime from nauka as f where f.changed > (select MAX(changed) as max_date FROM jezyki where nazwa = f.jezyk ) and f.jezyk = '"..nazwa.."' and f.character = '".. scripts.character_name .."'")
         for key, val in pairs(r) do
-            local postepy = "4"
-                if val["postepy"] == "minimalne" then postepy = "1"
-            elseif val["postepy"] == "nieznaczne" then postepy = "2"
-            elseif val["postepy"] == "bardzo male" then postepy = "3"
-            end
-            cechoLink(postepy, function() end, val["nauczyciel"], true)
-            
+            local postepy = JezykPostepy[val["postepy"]] or val["postepy"]
+            cechoLink(postepy, function() end, val["nauczyciel"], true)            
         end
 
         self:insert_jezyk(nazwa, poziom)
