@@ -10,7 +10,7 @@ local Jezyk2nazwa = {
     ["gnomiemu"] = "gnomi",
     ["Grumbarth"] = "grumbarth",
     ["halflinsku"] = "halflinski",
-        ["khazalidzie"] = "khazalid",
+    ["Khazalidzie"] = "khazalid",
     ["kislevicku"] = "kislevicki",
     ["Krasnoludow Mahakamskich"] = "krasnoludzki",
         ["nilfgaardzku"] = "nilfgaardzki",
@@ -124,16 +124,17 @@ function Jezyki:parse()
         end
         local lv = misc.lang_desc[poziom]
         local lv_max = self:get_jezyk_max(nazwa)
+        if lv_max == -1 then lv_max = 10 end
                
         selectString(nazwa, 1)
         setLink(function() send("justaw "..nazwa)end, "zmien jezyk na "..nazwa)
-        
         cecho(string.rep(" ", 13 - string.len(poziom)) .. " [")
+        local color = self:is_jezyk_max(nazwa) and "<green_yellow>" or "<green>"
         for i = 1, 10 do
             for k,v in pairs(misc["lang_desc"]) do
                 if v == i then
                     local msg = "<reset> "
-                    if i <= lv then msg = "<green>="
+                    if i <= lv then msg = color .. "="
                     elseif i<=lv_max then msg = "<red>-" end
                     if h[k] and h[k] ~= {} then
                         local hint = k.." "
@@ -163,27 +164,23 @@ function Jezyki:parse()
     end
 end
 
--- db:fetch_sql(Jezyki.db.jezyki_max, "select * from jezyki_max")
 function Jezyki:get_jezyk_max(nazwa)
     local q = "select poziom from jezyki_max where nazwa='"..nazwa.."' and character = '".. scripts.character_name .."'"
     local r = db:fetch_sql(self.db.jezyki_max, q)
-    if table.size(r) > 0 then
-        return misc["lang_desc"][r[1]['poziom']]
-    else
-        return 10
-    end
+    return table.size(r) > 0 and misc["lang_desc"][r[1]['poziom']] or -1
+end
+
+function Jezyki:is_jezyk_max(nazwa)
+    local q = "select is_max from jezyki_max where nazwa='".. nazwa .. "' and character = '" .. scripts.character_name .."'"
+    local r = db:fetch_sql(self.db.jezyki_max, q)
+    return table.size(r) > 0 and r[1]['is_max'] == 1 or false
 end
 
 function Jezyki:insert_jezyk_max(nazwa, poziom)
-    db:add(self.db.jezyki_max, { nazwa = nazwa, poziom = poziom, character = scripts.character_name })
-    --local q = "select poziom from jezyki_max where nazwa='"..nazwa
-    --local r = db:fetch_sql(self.db.jezyki_max, q)
-    --if table.size(r) == 0 then
-    --    db:add(self.db.jezyki_max, { nazwa = nazwa, poziom = poziom })
-    --else
-    --    local query = "update jezyki_max set poziom = '"..poziom.."' where nazwa = '"..nazwa.."'"
-    --    db:fetch_sql(self.db.jezyki_max, query)
-    --end
+    local q = "select * from jezyki_max where nazwa='".. nazwa .. "' and character = '" .. scripts.character_name .."'"
+    local r = db:fetch_sql(self.db.jezyki_max, q)
+    if table.size(r) > 0 and r[1]['poziom'] == poziom then return end
+    db:add(self.db.jezyki_max, { nazwa = nazwa, poziom = poziom, character = scripts.character_name, is_max = false })
 end
 
 -- db:add(Jezyki.db.nauka, { jezyk = "krasnoludzki", nauczyciel = "Vorid", postepy= "minimalne", changed=db:Timestamp(os.time({year=2021, month=11, day=25, hour=16, minute=50}))})
@@ -206,9 +203,10 @@ function Jezyki:chcecieuczyc()
     local lowered_name = string.lower(name)
 
     if not Jezyk2nazwa[matches[3]] then
-        echo("Co to '"..matches[3].."'\n")
-        Jezyki:wybierz()
+        cecho("\nNie rozpoznany jezyk: <yellow>'"..matches[3].."<reset>'\n")
+        --Jezyki:wybierz()
     end
+    self.temp_jezyk = Jezyk2nazwa[matches[3]]
     for k, v in pairs(gmcp.objects.nums) do
         if ateam.objs[v]["desc"] == name or ateam.objs[v]["desc"] == lowered_name and not ateam.objs[v].enemy and not table.index_of(scripts.people.enemy_people)then
             local command = "jucz sie jezyka od ob_".. v
@@ -242,41 +240,51 @@ function Jezyki:uczyciemowic()
     if Jezyk2nazwa[matches[3]] then 
         self.temp_jezyk = Jezyk2nazwa[matches[3]]
     else
-        scripts:print_log("Blad. Nieznany jezyk "..self.temp_jezyk)
+        scripts:print_log("Nie rozpoznany jezyk: '"..self.temp_jezyk.."'")
     end
 end
 
 function Jezyki:postepywnauce()
     self.temp_postepy = matches[2]
-    scripts.utils.bind_functional("jezyki", false, false)
+    if self:get_jezyk_max(self.temp_jezyk) == -1 then
+        scripts.utils.bind_functional("jezyki maksymalne", false, false)
+    else
+        scripts.utils.bind_functional("jezyki", false, false)
+    end
     self:Flush()
 end
 
 function Jezyki:maxnauki()
-    if self.temp_jezyk and self.temp_nauczyciel then
-        local nauczyciel_dop = matches[2]
-        --if self.temp_nauczyciel ==  then
-            local bob = db:fetch(Jezyki.db.jezyki_max, db:eq(Jezyki.db.jezyki_max.nazwa, self.temp_jezyk), db:eq(Jezyki.db.jezyki_max.character, scripts.character_name))[1]
-            bob.is_max = 1
-            db:update(Jezyki.db.jezyki_max, bob)
-        --end
+    if self.temp_jezyk then
+        local nazwa = self.temp_jezyk
+        if self:is_jezyk_max(nazwa) == false then
+            cechoLink("<green> [ustaw " .. nazwa .. " jako nauczony]",
+                function()
+                    local bob = db:fetch(Jezyki.db.jezyki_max, db:AND(db:eq(Jezyki.db.jezyki_max.nazwa, nazwa), db:eq(Jezyki.db.jezyki_max.character, scripts.character_name)))[1]
+                    bob.is_max = 1
+                    db:update(Jezyki.db.jezyki_max, bob)
+                end
+                , "zaznacza jezyk jako wyuczony", true
+            )
+        end
+        self.temp_jezyk = nil
     end
 end    
 
 function Jezyki:print2()
-  local q = "select nazwa, poziom, strftime('%Y-%m-%d %H:%M',changed, 'localtime') as datetime from jezyki order by nazwa,datetime"
-  local r = db:fetch_sql(Jezyki.db.jezyki, q)
-  for key, val in pairs(r) do
-    cecho(val["datetime"].." <green>".. val["nazwa"].."<reset> "..val["poziom"].."\n")
-  end
+    local q = "select nazwa, poziom, strftime('%Y-%m-%d %H:%M',changed, 'localtime') as datetime from jezyki order by nazwa,datetime"
+    local r = db:fetch_sql(Jezyki.db.jezyki, q)
+    for key, val in pairs(r) do
+        cecho(val["datetime"].." <green>".. val["nazwa"].."<reset> "..val["poziom"].."\n")
+    end
 end
 
 function Jezyki:print()
-  local q = "select f.nauczyciel, f.jezyk, f.postepy, strftime('%Y-%m-%d %H:%M',f.changed, 'localtime') as datetime from nauka as f order by datetime"
-  local r = db:fetch_sql(Jezyki.db.nauka, q)
-  for key, val in pairs(r) do
-    cecho(val["datetime"].." ".. val["nauczyciel"]..string.rep(" ", 12 - string.len(val["nauczyciel"])).."<green>"..val["jezyk"].."<reset>"..string.rep(" ", 15 - string.len(val["jezyk"]))..val["postepy"].."\n")
-  end 
+    local q = "select f.nauczyciel, f.jezyk, f.postepy, strftime('%Y-%m-%d %H:%M',f.changed, 'localtime') as datetime from nauka as f order by datetime"
+    local r = db:fetch_sql(Jezyki.db.nauka, q)
+    for key, val in pairs(r) do
+        cecho(val["datetime"].." ".. val["nauczyciel"]..string.rep(" ", 12 - string.len(val["nauczyciel"])).."<green>"..val["jezyk"].."<reset>"..string.rep(" ", 15 - string.len(val["jezyk"]))..val["postepy"].."\n")
+    end
 end
 
 function Jezyki:Init()
