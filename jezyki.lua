@@ -21,7 +21,7 @@ local Jezyk2nazwa = {
     ["Starszej Mowie"] = "starsza mowa",
         ["Tar-Eltharin"] = "tar-eltharin",
     ["zerrikansku"] = "zerrikanski",   
-        ["ghassally"] = "ghassally",
+        ["Ghassally"] = "ghassally",
 }
 
 local JezykPostepy = {
