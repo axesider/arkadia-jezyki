@@ -13,7 +13,7 @@ local Jezyk2nazwa = {
     ["Khazalidzie"] = "khazalid",
     ["kislevicku"] = "kislevicki",
     ["Krasnoludow Mahakamskich"] = "krasnoludzki",
-        ["nilfgaardzku"] = "nilfgaardzki",
+    ["nilfgaardzku"] = "nilfgaardzki",
     ["norskim"] = "norski",
     ["Reikspielu"] = "reikspiel",
     ["skelligansku"] = "skelliganski",
@@ -21,7 +21,7 @@ local Jezyk2nazwa = {
     ["Starszej Mowie"] = "starsza mowa",
         ["Tar-Eltharin"] = "tar-eltharin",
     ["zerrikansku"] = "zerrikanski",   
-        ["Ghassally"] = "ghassally",
+    ["ghassally"] = "ghassally",
 }
 
 local JezykPostepy = {
