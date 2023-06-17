@@ -19,7 +19,7 @@ local Jezyk2nazwa = {
     ["skelligansku"] = "skelliganski",
     ["tileansku"] = "tileanski",
     ["Starszej Mowie"] = "starsza mowa",
-        ["Tar-Eltharin"] = "tar-eltharin",
+    ["Tar-Eltharin"] = "tar-eltharin",
     ["zerrikansku"] = "zerrikanski",   
     ["ghassally"] = "ghassally",
 }
