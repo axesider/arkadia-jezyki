@@ -7,6 +7,7 @@ local Jezyk2nazwa = {
     ["Drukh-Eltharin"] = "drukh-eltharin",
     ["estalijsku"] = "estalijski",
     ["Fan-Eltharin"] = "fan-eltharin",
+    ["Ghassally"] = "ghassally",
     ["gnomiemu"] = "gnomi",
     ["Grumbarth"] = "grumbarth",
     ["halflinsku"] = "halflinski",
@@ -20,8 +21,7 @@ local Jezyk2nazwa = {
     ["tileansku"] = "tileanski",
     ["Starszej Mowie"] = "starsza mowa",
     ["Tar-Eltharin"] = "tar-eltharin",
-    ["zerrikansku"] = "zerrikanski",   
-    ["ghassally"] = "ghassally",
+    ["zerrikansku"] = "zerrikanski",
 }
 
 local JezykPostepy = {
@@ -288,11 +288,11 @@ function Jezyki:print()
 end
 
 function Jezyki:Init()
-    local regexp = "^.*([A-Z]\\w+).* chce cie uczyc mowic (?>w(?> jezyku)?|po) (.+)\\.$"
+    local regexp = "^.*([A-Z]\\w+.*) chce cie uczyc mowic (?>w(?> jezyku)?|po) (?'jezyk'.+)\\.$"
     if self.chcecieuczyc_trigger then killTrigger(self.chcecieuczyc_trigger) end
     self.chcecieuczyc_trigger = tempRegexTrigger(regexp, function() self:chcecieuczyc() end)
     
-    local regexp2 = "^\\[?(.+?)\\]? uczy cie mowic (?>w(?> jezyku)?|po) (.+)\\.$"
+    local regexp2 = "^\\[?(.+?)\\]? uczy cie mowic (?>w(?> jezyku)?|po) (?'jezyk'.+)\\.$"
     if self.uczyciemowic_trigger then killTrigger(self.uczyciemowic_trigger) end
     self.uczyciemowic_trigger = tempRegexTrigger(regexp2, function() self:uczyciemowic() end)
 
