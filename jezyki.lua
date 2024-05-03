@@ -199,14 +199,14 @@ function Jezyki:Flush()
 end
 
 function Jezyki:chcecieuczyc()
-    local name = matches[2]
+    local name = matches['kto']
     local lowered_name = string.lower(name)
 
-    if not Jezyk2nazwa[matches[3]] then
-        cecho("\nNie rozpoznany jezyk: <yellow>'"..matches[3].."<reset>'\n")
+    if not Jezyk2nazwa[matches['jezyk']] then
+        cecho("\nNie rozpoznany jezyk: <yellow>'"..matches['jezyk'].."<reset>'\n")
         --Jezyki:wybierz()
     end
-    self.temp_jezyk = Jezyk2nazwa[matches[3]]
+    self.temp_jezyk = Jezyk2nazwa[matches['jezyk']]
     for k, v in pairs(gmcp.objects.nums) do
         if ateam.objs[v]["desc"] == name or ateam.objs[v]["desc"] == lowered_name and not ateam.objs[v].enemy and not table.index_of(scripts.people.enemy_people)then
             local command = "jucz sie jezyka od ob_".. v
@@ -235,9 +235,9 @@ function Jezyki:wybierz()
 end
 
 function Jezyki:uczyciemowic()
-    self.temp_nauczyciel = matches[2]
+    self.temp_nauczyciel = matches['kto']
     
-    if Jezyk2nazwa[matches[3]] then 
+    if Jezyk2nazwa[matches['jezyk']] then 
         self.temp_jezyk = Jezyk2nazwa[matches[3]]
     else
         scripts:print_log("Nie rozpoznany jezyk: '"..self.temp_jezyk.."'")
@@ -288,11 +288,11 @@ function Jezyki:print()
 end
 
 function Jezyki:Init()
-    local regexp = "^.*([A-Z]\\w+.*) chce cie uczyc mowic (?>w(?> jezyku)?|po) (?'jezyk'.+)\\.$"
+    local regexp = "^\\[?(?'kto'.+?)\\]? chce cie uczyc mowic (?>w(?> jezyku)?|po) (?'jezyk'.+)\\.$"
     if self.chcecieuczyc_trigger then killTrigger(self.chcecieuczyc_trigger) end
     self.chcecieuczyc_trigger = tempRegexTrigger(regexp, function() self:chcecieuczyc() end)
     
-    local regexp2 = "^\\[?(.+?)\\]? uczy cie mowic (?>w(?> jezyku)?|po) (?'jezyk'.+)\\.$"
+    local regexp2 = "^\\[?('kto'.+?)\\]? uczy cie mowic (?>w(?> jezyku)?|po) (?'jezyk'.+)\\.$"
     if self.uczyciemowic_trigger then killTrigger(self.uczyciemowic_trigger) end
     self.uczyciemowic_trigger = tempRegexTrigger(regexp2, function() self:uczyciemowic() end)
 
