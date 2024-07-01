@@ -129,7 +129,8 @@ function Jezyki:parse()
         selectString(nazwa, 1)
         setLink(function() send("justaw "..nazwa)end, "zmien jezyk na "..nazwa)
         cecho(string.rep(" ", 13 - string.len(poziom)) .. " [")
-        local color = self:is_jezyk_max(nazwa) and "<green_yellow>" or "<green>"
+        local is_max = self:is_jezyk_max(nazwa)
+        local color = is_max and "<green_yellow>" or "<green>"
         for i = 1, 10 do
             for k,v in pairs(misc["lang_desc"]) do
                 if v == i then
@@ -151,11 +152,12 @@ function Jezyki:parse()
         --"<green>" ..string.rep("=",lv).."<red>" .. string.rep("-",lv_max-lv) .."<reset>".. string.rep(" ",10-lv_max) .. "]"
         --local add_text = string.rep(" ", 13 - string.len(poziom)) .. "<DarkSlateBlue>" ..string.rep("#",lv).."<light_pink>" .. string.rep("-",lv_max-lv) .."<reset>"
         --cecho(add_text)
-
-        local r = db:fetch_sql(self.db.nauka, "select f.nauczyciel, f.jezyk, f.postepy, strftime('%Y-%m-%d %H:%M',f.changed, 'localtime') as datetime from nauka as f where f.changed > (select MAX(changed) as max_date FROM jezyki where nazwa = f.jezyk ) and f.jezyk = '"..nazwa.."' and f.character = '".. scripts.character_name .."'")
-        for key, val in pairs(r) do
-            local postepy = JezykPostepy[val["postepy"]] or val["postepy"]
-            cechoLink(postepy, function() end, val["nauczyciel"], true)            
+        if not is_max then
+            local r = db:fetch_sql(self.db.nauka, "select f.nauczyciel, f.jezyk, f.postepy, strftime('%Y-%m-%d %H:%M',f.changed, 'localtime') as datetime from nauka as f where f.changed > (select MAX(changed) as max_date FROM jezyki where nazwa = f.jezyk ) and f.jezyk = '"..nazwa.."' and f.character = '".. scripts.character_name .."'")
+            for key, val in pairs(r) do
+                local postepy = JezykPostepy[val["postepy"]] or val["postepy"]
+                cechoLink(postepy, function() end, val["nauczyciel"], true)
+            end
         end
 
         self:insert_jezyk(nazwa, poziom)
@@ -237,7 +239,7 @@ end
 function Jezyki:uczyciemowic()
     self.temp_nauczyciel = matches['kto']
     
-    if Jezyk2nazwa[matches['jezyk']] then 
+    if Jezyk2nazwa[matches['jezyk']] then
         self.temp_jezyk = Jezyk2nazwa[matches[3]]
     else
         scripts:print_log("Nie rozpoznany jezyk: '"..self.temp_jezyk.."'")
