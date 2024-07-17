@@ -265,7 +265,7 @@ function Jezyki:chcecieuczyc()
     end
     local lowered_name = string.lower(matches['kto'])
     for k, v in pairs(gmcp.objects.nums) do
-        if ateam.objs[v]["desc"] == name or ateam.objs[v]["desc"] == lowered_name and not ateam.objs[v].enemy and not table.index_of(scripts.people.enemy_people) then
+        if string.lower(ateam.objs[v]["desc"]) == lowered_name and not ateam.objs[v].enemy then
             local command = "jucz sie jezyka od ob_" .. v
             if scripts.utils.functional_key ~= command then
                 raiseEvent("playBeep")
@@ -389,13 +389,13 @@ function Jezyki:command(command)
         ["raport1"] = {
             opis = "raport uczenia sie",
             fun = function()
-                Jezyki:print()
+                self:print()
             end
         },
         ["raport2"] = {
             opis = "raport postepow w nauce",
             fun = function()
-                Jezyki:print2()
+                self:print2()
             end
         },
         ["maksymalne"] = {
