@@ -265,7 +265,7 @@ function Jezyki:chcecieuczyc()
     end
     local lowered_name = string.lower(matches['kto'])
     for k, v in pairs(gmcp.objects.nums) do
-        if string.lower(ateam.objs[v]["desc"]) == lowered_name and not ateam.objs[v].enemy then
+        if ateam.objs[v]["desc"] and string.lower(ateam.objs[v]["desc"]) == lowered_name and not ateam.objs[v].enemy then
             local command = "jucz sie jezyka od ob_" .. v
             if scripts.utils.functional_key ~= command then
                 raiseEvent("playBeep")
